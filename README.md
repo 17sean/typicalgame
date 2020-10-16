@@ -1,5 +1,6 @@
-# typicalgame
-Just game 
-For use: 
+# Typical Game
+## For use: 
+```
 fpc tg.pas
 ./tg
+```
