@@ -2,6 +2,7 @@ program TypicalGame;
 uses crt;
 const
 	filename = 'auth.txt';
+	AS = 150;
 type
 	THSide = (right, left);
 
@@ -39,16 +40,12 @@ type
 
 var		{ Global Variables }
 	auth: text;
-	EAS: integer; { Enemy Attack Speed }
-	THAS: integer; { Typical Hero Attack Speed } 
 	DeadEnemy: integer;
 
 procedure zeroing_all(var map: GameMap; var enemyar: GameEnemyArray; var th: GameTH);
 var
 	i, k: integer;
 begin
-	EAS := 150;
-	THAS := 50;
 	DeadEnemy := 0;
 
 	map.HomeX := (ScreenWidth - 22) div 2; { Zeroing map}
@@ -282,9 +279,8 @@ end;
 
 procedure ShootTH(var th: GameTH; var enemyar: GameEnemyArray);
 var
-	i, j, n, distance: integer;
+	i, j, distance: integer;
 begin
-	n := 0;
 	th.Ammo.CurX := th.CurX;
 	th.Ammo.CurY := th.CurY - 1;
 	distance := th.CurY - enemyar[1].CurY;
@@ -293,8 +289,9 @@ begin
 	for i := 1 to distance do
 	begin
 		ShowTHAmmo(th);
-		delay(THAS);
-		MovementControl(th);
+		if KeyPressed then
+			MovementControl(th);
+		delay(AS);
 		HideTHAmmo(th);
 		th.Ammo.CurY := th.Ammo.CurY - 1;
 
@@ -303,15 +300,16 @@ begin
 			for j := 0 to 9 do
 			begin
 				if enemyar[j].CurX = th.Ammo.CurX then
-					n := j;
-			end;
-			if n > 0 then
-			begin
-				enemyar[n].Alive := false;
-				DeadEnemy := DeadEnemy + 1;
-				th.Ammo.CurX := th.CurX;
-				th.Ammo.CurY := th.CurY - 1;
-				exit;
+				begin
+					if enemyar[j].Alive = true then
+					begin
+						enemyar[j].Alive := false;
+						DeadEnemy := DeadEnemy + 1;
+					end;
+					th.Ammo.CurX := th.CurX;
+					th.Ammo.CurY := th.CurY - 1;
+					exit;
+				end;
 			end;
 		end;
 
@@ -330,7 +328,7 @@ begin
 		y := ScreenHeight div 2;
 		GotoXY(x, y);
 		write('You lose');
-		delay(3000);
+		delay(2000);
 		clrscr;
 		halt(0);
 	end;
@@ -375,8 +373,9 @@ begin
 	for i := 1 to distance do
 	begin
 		ShowEnemyAmmo(enemyar, randint);
-		Delay(EAS);
-		MovementControl(th);
+		if KeyPressed then
+			MovementControl(th);
+		Delay(AS);
 		HideEnemyAmmo(enemyar, randint);
 		enemyar[randint].Ammo.CurY := enemyar[randint].Ammo.CurY + 1;
 		if enemyar[randint].Ammo.CurY = th.CurY then
@@ -404,7 +403,6 @@ begin
 			GotoXY(enemyar[i].CurX, enemyar[i].CurY);
 			write(enemyar[i].DSymb);
 		end;
-		EAS := 150 - (DeadEnemy * 15);
 	end;
 	if DeadEnemy = 10 then
 	begin
@@ -412,6 +410,9 @@ begin
 		y := ScreenHeight div 2;
 		GotoXY(x, y);
 		write('You win');
+		delay(2000);
+		clrscr;
+		halt(0);
 	end;
 end;
 	{ Main }
